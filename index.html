@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <title>Stok Strip Pro - Upload Foto Langsung</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background: #f1f5f9; padding-bottom: 70px; }
+        
+        .header { background: #0f172a; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; position: sticky; top: 0; z-index: 100; }
+        .header h2 { font-size: 1.2rem; }
+        .sync-status { background: #10b981; border-radius: 30px; padding: 5px 12px; font-size: 0.7rem; cursor: pointer; }
+        .menu-btn { background: rgba(255,255,255,0.2); border: none; color: white; font-size: 1.3rem; width: 36px; height: 36px; border-radius: 50%; cursor: pointer; }
+        
+        .menu-dropdown { position: absolute; top: 60px; right: 15px; background: white; border-radius: 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); width: 220px; z-index: 200; display: none; overflow: hidden; }
+        .menu-dropdown.show { display: block; }
+        .menu-item { padding: 12px 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; border-bottom: 1px solid #e2e8f0; font-size: 0.9rem; }
+        
+        .tabs { display: flex; background: white; overflow-x: auto; border-bottom: 1px solid #e2e8f0; }
+        .tab { flex: 1; padding: 12px 5px; text-align: center; font-weight: bold; color: #64748b; border-bottom: 3px solid transparent; cursor: pointer; white-space: nowrap; }
+        .tab.active { border-bottom-color: #2563eb; color: #2563eb; background: #eff6ff; }
+        
+        .main-content { padding: 15px; max-width: 600px; margin: 0 auto; }
+        .card { background: white; border-radius: 20px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+        .form-label { font-weight: bold; font-size: 0.75rem; color: #475569; margin-bottom: 5px; display: block; }
+        .form-input { width: 100%; padding: 12px; border-radius: 12px; border: 1.5px solid #e2e8f0; margin-bottom: 15px; font-size: 0.9rem; }
+        .btn-primary { width: 100%; padding: 14px; background: #2563eb; color: white; border: none; border-radius: 40px; font-weight: bold; cursor: pointer; margin-top: 5px; }
+        .btn-primary:active { transform: scale(0.97); }
+        .btn-cancel { background: #64748b; margin-top: 10px; }
+        
+        /* Upload Foto */
+        .photo-upload-area { border: 2px dashed #cbd5e1; border-radius: 20px; padding: 20px; text-align: center; cursor: pointer; margin-bottom: 15px; background: #f8fafc; }
+        .photo-preview { width: 100%; max-height: 200px; object-fit: contain; border-radius: 12px; margin-top: 10px; }
+        .photo-preview.hidden { display: none; }
+        
+        /* Product List */
+        .product-item { background: white; border-radius: 16px; padding: 12px; margin-bottom: 10px; display: flex; gap: 12px; align-items: center; border: 1px solid #e2e8f0; }
+        .product-img { width: 65px; height: 65px; border-radius: 12px; object-fit: cover; background: #e2e8f0; cursor: pointer; }
+        .product-info { flex: 1; }
+        .product-name-stok0 { font-weight: bold; font-size: 0.9rem; margin-bottom: 4px; color: #dc2626; }
+        .product-name-stok1 { font-weight: bold; font-size: 0.9rem; margin-bottom: 4px; color: #2563eb; }
+        .product-name-stok2plus { font-weight: bold; font-size: 0.9rem; margin-bottom: 4px; color: #1e293b; }
+        .product-stok { font-size: 0.8rem; color: #475569; }
+        .edit-btn { color: #2563eb; font-size: 0.7rem; margin-top: 5px; display: inline-block; cursor: pointer; background: #eff6ff; padding: 4px 10px; border-radius: 30px; }
+        .stock-buttons { display: flex; gap: 6px; }
+        .stock-btn { width: 38px; height: 38px; border-radius: 20px; border: 1px solid #e2e8f0; background: white; font-size: 1.2rem; font-weight: bold; cursor: pointer; }
+        .delete-btn { background: #fee2e2; color: #dc2626; border: none; }
+        
+        .load-more { text-align: center; padding: 12px; background: #e2e8f0; border-radius: 40px; margin: 10px 0; cursor: pointer; font-weight: bold; }
+        .info-stats { background: #e2e8f0; border-radius: 30px; padding: 8px 15px; margin-bottom: 15px; font-size: 0.8rem; display: flex; justify-content: space-between; }
+        
+        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; display: flex; background: white; border-top: 1px solid #e2e8f0; padding: 10px 0; }
+        .nav-item { flex: 1; text-align: center; padding: 8px; cursor: pointer; color: #94a3b8; font-weight: bold; font-size: 0.75rem; }
+        .nav-item.active { color: #2563eb; background: #eff6ff; }
+        .nav-item span { font-size: 1.3rem; display: block; margin-bottom: 3px; }
+        
+        .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.95); z-index: 1000; align-items: center; justify-content: center; }
+        .modal-img { max-width: 90%; max-height: 80%; border-radius: 12px; }
+        .modal-close { position: absolute; top: 20px; right: 20px; color: white; font-size: 2rem; cursor: pointer; }
+        
+        .toast { position: fixed; bottom: 80px; left: 20px; right: 20px; background: #1e293b; color: white; padding: 12px; border-radius: 40px; text-align: center; z-index: 1000; }
+        .hidden { display: none !important; }
+        .search-box { margin-bottom: 15px; }
+        .stok-badge { display: inline-block; padding: 2px 8px; border-radius: 30px; font-size: 0.7rem; font-weight: bold; margin-left: 5px; }
+        .stok-habis { background: #fee2e2; color: #dc2626; }
+        .stok-sedikit { background: #dbeafe; color: #2563eb; }
+        .stok-banyak { background: #dcfce7; color: #16a34a; }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <h2>🏍️ Striping Pro</h2>
+    <div style="display: flex; gap: 10px;">
+        <span id="syncStatus" class="sync-status" onclick="manualSync()">✅ Online</span>
+        <button class="menu-btn" onclick="toggleMenu()">☰</button>
+    </div>
+</div>
+
+<div id="menuDropdown" class="menu-dropdown">
+    <div class="menu-item" onclick="exportBackup()">💾 Backup ke File</div>
+    <div class="menu-item" onclick="showRestoreModal()">📂 Restore dari File</div>
+    <div class="menu-item" onclick="manualSync()">🔄 Sinkronisasi Manual</div>
+    <div class="menu-item" onclick="clearAllData()" style="color:#dc2626;">⚠️ Hapus Semua Data</div>
+</div>
+
+<div id="tabs" class="tabs"></div>
+
+<div class="main-content">
+    <!-- LAYAR TAMBAH PRODUK -->
+    <div id="screenAdd">
+        <div class="card">
+            <h3 style="margin-bottom: 15px;">➕ Tambah Produk</h3>
+            <input type="hidden" id="editId">
+            
+            <label class="form-label">🏍️ MEREK MOTOR</label>
+            <select id="kategori" class="form-input">
+                <option value="HONDA">HONDA</option>
+                <option value="YAMAHA">YAMAHA</option>
+                <option value="SUZUKI">SUZUKI</option>
+                <option value="KAWASAKI">KAWASAKI</option>
+            </select>
+            
+            <label class="form-label">📛 NAMA PRODUK</label>
+            <input type="text" id="nama" class="form-input" placeholder="Contoh: Stiker Scoopy Racing">
+            
+            <label class="form-label">📸 FOTO PRODUK (Upload dari Galeri)</label>
+            <div class="photo-upload-area" onclick="document.getElementById('fotoInput').click()">
+                📷 Klik untuk pilih foto dari galeri
+                <img id="fotoPreview" class="photo-preview hidden">
+            </div>
+            <input type="file" id="fotoInput" accept="image/*" style="display:none" onchange="handleFotoUpload(this)">
+            
+            <button class="btn-primary" onclick="simpanProduk()">💾 SIMPAN PRODUK</button>
+            <button id="btnBatal" class="btn-primary btn-cancel hidden" onclick="batalEdit()">BATAL EDIT</button>
+        </div>
+
+        <div class="card">
+            <h3 style="margin-bottom: 10px;">📤 Input Massal (1000+ Produk)</h3>
+            <small>Format per baris: <b>KATEGORI|Nama Produk</b> (foto akan kosong, bisa edit nanti)</small>
+            <textarea id="massInput" rows="4" class="form-input" style="margin-top: 10px;" placeholder="HONDA|Stiker Scoopy 2024&#10;YAMAHA|Stiker NMAX Carbon&#10;SUZUKI|Stiker Satria FU"></textarea>
+            <button class="btn-primary" onclick="inputMassal()" style="background: #10b981;">📥 IMPORT MASSAL</button>
+        </div>
+    </div>
+
+    <!-- LAYAR LIST PRODUK -->
+    <div id="screenList" class="hidden">
+        <input type="text" id="search" class="form-input search-box" placeholder="🔍 Cari produk..." oninput="cariProduk()">
+        <div id="infoStats" class="info-stats">
+            <span id="totalProduk">0 produk</span>
+            <span id="tampilProduk">Menampilkan 0</span>
+        </div>
+        <div id="listContainer"></div>
+        <div id="loadMoreBtn" class="load-more hidden" onclick="loadMore()">📥 Load More Produk...</div>
+    </div>
+</div>
+
+<div class="bottom-nav">
+    <div class="nav-item active" onclick="gantiLayar('add')"><span>➕</span>TAMBAH</div>
+    <div class="nav-item" onclick="gantiLayar('list')"><span>📦</span>STOK</div>
+</div>
+
+<!-- MODAL ZOOM -->
+<div id="zoomModal" class="modal" onclick="closeZoom()">
+    <div class="modal-close" onclick="closeZoom()">✕</div>
+    <img id="zoomImg" class="modal-img">
+</div>
+
+<div id="modalRestore" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.7); z-index:2000; align-items:center; justify-content:center;">
+    <div style="background:white; padding:25px; border-radius:30px; width:300px; text-align:center;">
+        <h3>📂 Restore Data</h3>
+        <input type="file" id="restoreFile" accept=".sqlite" style="margin:15px 0; width:100%;">
+        <button class="btn-primary" onclick="restoreFromFile()">RESTORE</button>
+        <button onclick="closeRestoreModal()" style="margin-top:10px;">Batal</button>
+    </div>
+</div>
+
+<script>
+    // ==================== KONFIGURASI ====================
+    const DB_NAME = 'StokStripDB';
+    const DB_VERSION = 3;
+    const STORE_NAME = 'produk';
+    const ITEMS_PER_PAGE = 30;
+    
+    let dbData = [];
+    let filteredData = [];
+    let currentCategory = "HONDA";
+    let currentPage = 0;
+    let fotoBase64 = ""; // Untuk menyimpan foto sementara sebelum simpan
+    
+    // ==================== INDEXEDDB ====================
+    function openIndexedDB() {
+        return new Promise((resolve, reject) => {
+            const request = indexedDB.open(DB_NAME, DB_VERSION);
+            request.onerror = () => reject(request.error);
+            request.onsuccess = () => resolve(request.result);
+            request.onupgradeneeded = (event) => {
+                const db = event.target.result;
+                if (!db.objectStoreNames.contains(STORE_NAME)) {
+                    db.createObjectStore(STORE_NAME, { keyPath: 'id' });
+                }
+            };
+        });
+    }
+    
+    async function simpanKeIndexedDB(produkArray) {
+        const db = await openIndexedDB();
+        const transaction = db.transaction([STORE_NAME], 'readwrite');
+        const store = transaction.objectStore(STORE_NAME);
+        store.clear();
+        for (const item of produkArray) store.put(item);
+        return new Promise((resolve) => { transaction.oncomplete = resolve(); });
+    }
+    
+    async function loadDariIndexedDB() {
+        const db = await openIndexedDB();
+        const transaction = db.transaction([STORE_NAME], 'readonly');
+        const store = transaction.objectStore(STORE_NAME);
+        const request = store.getAll();
+        return new Promise((resolve) => { request.onsuccess = () => resolve(request.result || []); });
+    }
+    
+    // ==================== FUNGSI FOTO ====================
+    function handleFotoUpload(input) {
+        if (input.files && input.files[0]) {
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                fotoBase64 = e.target.result;
+                const preview = document.getElementById('fotoPreview');
+                preview.src = fotoBase64;
+                preview.classList.remove('hidden');
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
+    }
+    
+    // ==================== FUNGSI WARNA STOK ====================
+    function getStockColorClass(stok) {
+        if (stok === 0) return 'product-name-stok0';
+        if (stok === 1) return 'product-name-stok1';
+        return 'product-name-stok2plus';
+    }
+    
+    function getStockBadge(stok) {
+        if (stok === 0) return '<span class="stok-badge stok-habis">⚠️ HABIS</span>';
+        if (stok === 1) return '<span class="stok-badge stok-sedikit">⚠️ SISA 1</span>';
+        if (stok <= 5) return '<span class="stok-badge stok-sedikit">📦 SISA ' + stok + '</span>';
+        return '<span class="stok-badge stok-banyak">✅ STOK AMAN</span>';
+    }
+    
+    // ==================== CRUD ====================
+    async function simpanProduk() {
+        const id = document.getElementById('editId').value;
+        const nama = document.getElementById('nama').value.trim();
+        const kategori = document.getElementById('kategori').value;
+        
+        if (!nama) return showToast("Nama produk wajib diisi!");
+        
+        if (id) {
+            const idx = dbData.findIndex(p => p.id == id);
+            if (idx !== -1) {
+                dbData[idx] = { ...dbData[idx], nama, kategori };
+                if (fotoBase64) dbData[idx].foto = fotoBase64;
+            }
+        } else {
+            dbData.push({ 
+                id: Date.now(), 
+                nama, 
+                kategori, 
+                foto: fotoBase64 || "", 
+                stok: 0 
+            });
+        }
+        
+        await simpanKeIndexedDB(dbData);
+        resetForm();
+        gantiLayar('list');
+        showToast("✅ Produk tersimpan!");
+    }
+    
+    function resetForm() {
+        document.getElementById('editId').value = '';
+        document.getElementById('nama').value = '';
+        document.getElementById('kategori').value = 'HONDA';
+        document.getElementById('fotoPreview').classList.add('hidden');
+        document.getElementById('fotoPreview').src = '';
+        document.getElementById('btnBatal').classList.add('hidden');
+        fotoBase64 = '';
+        document.getElementById('fotoInput').value = '';
+    }
+    
+    function editProduk(id) {
+        const p = dbData.find(x => x.id == id);
+        if (!p) return;
+        document.getElementById('editId').value = p.id;
+        document.getElementById('nama').value = p.nama;
+        document.getElementById('kategori').value = p.kategori;
+        if (p.foto) {
+            document.getElementById('fotoPreview').src = p.foto;
+            document.getElementById('fotoPreview').classList.remove('hidden');
+            fotoBase64 = p.foto;
+        }
+        document.getElementById('btnBatal').classList.remove('hidden');
+        gantiLayar('add');
+    }
+    
+    function batalEdit() { resetForm(); gantiLayar('list'); }
+    
+    async function ubahStok(id, delta) {
+        const idx = dbData.findIndex(p => p.id == id);
+        if (idx !== -1) {
+            const newStok = Math.max(0, (dbData[idx].stok || 0) + delta);
+            dbData[idx].stok = newStok;
+            await simpanKeIndexedDB(dbData);
+            filterData();
+            showToast(`📦 Stok ${dbData[idx].nama}: ${newStok}`);
+        }
+    }
+    
+    async function hapusProduk(id) {
+        if (confirm("Hapus produk ini?")) {
+            dbData = dbData.filter(p => p.id !== id);
+            await simpanKeIndexedDB(dbData);
+            filterData();
+            showToast("🗑️ Produk dihapus");
+        }
+    }
+    
+    async function inputMassal() {
+        const text = document.getElementById('massInput').value;
+        const lines = text.split('\n');
+        let added = 0;
+        
+        for (let line of lines) {
+            line = line.trim();
+            if (line === "") continue;
+            const parts = line.split('|');
+            if (parts.length >= 2) {
+                let kategori = parts[0].trim().toUpperCase();
+                const nama = parts[1].trim();
+                if (!["HONDA", "YAMAHA", "SUZUKI", "KAWASAKI"].includes(kategori)) kategori = "HONDA";
+                if (nama) {
+                    dbData.push({ id: Date.now() + added, nama, kategori, foto: "", stok: 0 });
+                    added++;
+                }
+            }
+        }
+        
+        if (added > 0) {
+            await simpanKeIndexedDB(dbData);
+            showToast(`✅ Berhasil tambah ${added} produk!`);
+            document.getElementById('massInput').value = '';
+            filterData();
+            gantiLayar('list');
+        } else {
+            showToast("❌ Format salah. Gunakan: KATEGORI|Nama Produk");
+        }
+    }
+    
+    // ==================== RENDER & FILTER ====================
+    function filterData() {
+        const keyword = document.getElementById('search')?.value.toLowerCase() || "";
+        filteredData = dbData.filter(p => 
+            p.kategori === currentCategory && 
+            p.nama.toLowerCase().includes(keyword)
+        );
+        currentPage = 0;
+        renderList();
+        updateStats();
+    }
+    
+    function renderList() {
+        const start = currentPage * ITEMS_PER_PAGE;
+        const end = start + ITEMS_PER_PAGE;
+        const pageItems = filteredData.slice(start, end);
+        const container = document.getElementById('listContainer');
+        
+        if (pageItems.length === 0) {
+            container.innerHTML = '<div style="text-align:center;padding:40px;">✨ Tidak ada produk</div>';
+        } else {
+            container.innerHTML = pageItems.map((item, idx) => {
+                const stock = item.stok || 0;
+                return `
+                <div class="product-item">
+                    <img class="product-img" src="${item.foto || 'https://via.placeholder.com/65'}" onclick="openZoom('${item.foto}')">
+                    <div class="product-info">
+                        <div class="${getStockColorClass(stock)}">${escapeHtml(item.nama)} ${getStockBadge(stock)}</div>
+                        <div class="product-stok">📦 Stok: <b>${stock}</b></div>
+                        <div class="edit-btn" onclick="editProduk(${item.id})">✏️ EDIT</div>
+                    </div>
+                    <div class="stock-buttons">
+                        <button class="stock-btn" onclick="ubahStok(${item.id}, -1)">−</button>
+                        <button class="stock-btn" onclick="ubahStok(${item.id}, 1)">+</button>
+                        <button class="stock-btn delete-btn" onclick="hapusProduk(${item.id})">🗑️</button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+        
+        const loadBtn = document.getElementById('loadMoreBtn');
+        if (filteredData.length > end) loadBtn.classList.remove('hidden');
+        else loadBtn.classList.add('hidden');
+        
+        document.getElementById('tampilProduk').innerHTML = `Menampilkan ${Math.min(filteredData.length, end)} dari ${filteredData.length}`;
+    }
+    
+    function loadMore() { currentPage++; renderList(); }
+    function cariProduk() { currentPage = 0; filterData(); }
+    function updateStats() { document.getElementById('totalProduk').innerHTML = `${dbData.length} produk total`; }
+    
+    function openZoom(foto) {
+        if (foto) {
+            document.getElementById('zoomImg').src = foto;
+            document.getElementById('zoomModal').style.display = 'flex';
+        }
+    }
+    function closeZoom() { document.getElementById('zoomModal').style.display = 'none'; }
+    
+    // ==================== BACKUP & RESTORE ====================
+    async function exportBackup() {
+        const data = JSON.stringify({ app: "StokStripPro", version: 3, payload: dbData });
+        const blob = new Blob([data], { type: 'application/octet-stream' });
+        const a = document.createElement('a');
+        a.href = URL.createObjectURL(blob);
+        a.download = `stok_backup_${new Date().toISOString().slice(0,10)}.sqlite`;
+        a.click();
+        toggleMenu();
+        showToast("💾 Backup berhasil");
+    }
+    
+    function showRestoreModal() { document.getElementById('modalRestore').style.display = 'flex'; toggleMenu(); }
+    function closeRestoreModal() { document.getElementById('modalRestore').style.display = 'none'; }
+    
+    async function restoreFromFile() {
+        const file = document.getElementById('restoreFile').files[0];
+        if (!file) return showToast("Pilih file backup");
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            try {
+                const json = JSON.parse(e.target.result);
+                if (json.app === "StokStripPro" && Array.isArray(json.payload)) {
+                    dbData = json.payload;
+                    await simpanKeIndexedDB(dbData);
+                    showToast(`✅ Restore sukses! ${dbData.length} produk`);
+                    closeRestoreModal();
+                    filterData();
+                } else showToast("❌ Format file tidak dikenali");
+            } catch(err) { showToast("❌ File korup"); }
+        };
+        reader.readAsText(file);
+    }
+    
+    async function manualSync() { showToast("🔄 Data tersimpan di IndexedDB"); }
+    async function clearAllData() {
+        if (confirm("⚠️ Hapus SEMUA data?")) {
+            dbData = [];
+            await simpanKeIndexedDB(dbData);
+            filterData();
+            showToast("🗑️ Semua data dihapus");
+        }
+        toggleMenu();
+    }
+    
+    // ==================== UI ====================
+    function gantiLayar(layar) {
+        document.getElementById('screenAdd').classList.toggle('hidden', layar !== 'add');
+        document.getElementById('screenList').classList.toggle('hidden', layar !== 'list');
+        document.querySelectorAll('.nav-item').forEach(el => el.classList.remove('active'));
+        if (layar === 'add') document.querySelector('.nav-item:first-child').classList.add('active');
+        else { document.querySelector('.nav-item:last-child').classList.add('active'); filterData(); }
+    }
+    
+    function renderTabs() {
+        const cats = ["HONDA", "YAMAHA", "SUZUKI", "KAWASAKI"];
+        document.getElementById('tabs').innerHTML = cats.map(c => 
+            `<div class="tab ${c === currentCategory ? 'active' : ''}" onclick="currentCategory='${c}';filterData();renderTabs();">${c}</div>`
+        ).join('');
+    }
+    
+    function showToast(msg) {
+        let t = document.querySelector('.toast');
+        if (t) t.remove();
+        t = document.createElement('div');
+        t.className = 'toast';
+        t.innerHTML = msg;
+        document.body.appendChild(t);
+        setTimeout(() => t.remove(), 2000);
+    }
+    
+    function toggleMenu() { document.getElementById('menuDropdown').classList.toggle('show'); }
+    function escapeHtml(str) { return String(str).replace(/[&<>]/g, m => m === '&' ? '&amp;' : m === '<' ? '&lt;' : '&gt;'); }
+    
+    document.addEventListener('click', (e) => {
+        const menu = document.getElementById('menuDropdown');
+        const menuBtn = document.querySelector('.menu-btn');
+        if (menu && menu.classList.contains('show') && !menu.contains(e.target) && !menuBtn.contains(e.target)) {
+            menu.classList.remove('show');
+        }
+    });
+    
+    // ==================== START ====================
+    async function init() {
+        const data = await loadDariIndexedDB();
+        dbData = data.length ? data : [
+            { id: Date.now(), nama: "Stiker Scoopy Racing", kategori: "HONDA", foto: "", stok: 0 },
+            { id: Date.now()+1, nama: "Stiker NMAX Carbon", kategori: "YAMAHA", foto: "", stok: 1 }
+        ];
+        await simpanKeIndexedDB(dbData);
+        filterData();
+        renderTabs();
+        updateStats();
+    }
+    
+    init();
+    gantiLayar('add');
+</script>
+</body>
+</html>
