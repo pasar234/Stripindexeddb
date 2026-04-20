@@ -1,36 +1,25 @@
-const CACHE_NAME = 'stok-v6-pwa';
-const ASSETS = [
-  '/StripPwa/',
-  '/StripPwa/index.html',
-  '/StripPwa/manifest.json'
+const CACHE_NAME = 'stripdb-cache-v1';
+const ASSETS_TO_CACHE = [
+  './',
+  './index.html',
+  './icon.png',
+  './manifest.json'
 ];
 
-self.addEventListener('install', (e) => {
-  e.waitUntil(
-    caches.open(CACHE_NAME).then(async (cache) => {
-      // Coba cache aset lokal saja, abaikan yang gagal (seperti CDN)
-      for (const asset of ASSETS) {
-        try {
-          await cache.add(asset);
-        } catch (err) {
-          console.log('Gagal cache:', asset, err);
-        }
-      }
+// Menginstal Service Worker dan melakukan caching
+self.addEventListener('install', (event) => {
+  event.waitUntil(
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS_TO_CACHE);
     })
   );
-  self.skipWaiting();
 });
 
-self.addEventListener('activate', (event) => {
-  event.waitUntil(clients.claim());
-});
-
-self.addEventListener('fetch', (e) => {
-  e.respondWith(
-    caches.match(e.request).then((res) => {
-      if (res) return res;
-      // Jangan ganggu request ke CDN atau eksternal
-      return fetch(e.request);
+// Mengambil aset dari cache jika offline
+self.addEventListener('fetch', (event) => {
+  event.respondWith(
+    caches.match(event.request).then((response) => {
+      return response || fetch(event.request);
     })
   );
 });
