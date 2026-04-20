@@ -1,69 +1,17 @@
 {
-  "name": "StokStrip Pro",
-  "short_name": "StripPro",
-  "description": "Aplikasi manajemen stok stiker motor untuk HONDA, YAMAHA, SUZUKI, KAWASAKI",
-  "start_url": "/StripPwa/index.html",
-  "scope": "/StripPwa/",
+  "name": "Stripindexeddb",
+  "short_name": "StripDB",
+  "start_url": "./index.html",
   "display": "standalone",
-  "orientation": "portrait",
-  "theme_color": "#1e293b",
-  "background_color": "#1e293b",
+  "background_color": "#ffffff",
+  "theme_color": "#000000",
+  "scope": "./",
   "icons": [
     {
-      "src": "images/icon-72.png",
-      "sizes": "72x72",
-      "type": "image/png"
-    },
-    {
-      "src": "images/icon-96.png",
-      "sizes": "96x96",
-      "type": "image/png"
-    },
-    {
-      "src": "images/icon-128.png",
-      "sizes": "128x128",
-      "type": "image/png"
-    },
-    {
-      "src": "images/icon-144.png",
-      "sizes": "144x144",
-      "type": "image/png"
-    },
-    {
-      "src": "images/icon-152.png",
-      "sizes": "152x152",
-      "type": "image/png"
-    },
-    {
-      "src": "images/icon-192.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "images/icon-384.png",
-      "sizes": "384x384",
-      "type": "image/png"
-    },
-    {
-      "src": "images/icon-512.png",
+      "src": "icon.png",
       "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "screenshots": [
-    {
-      "src": "images/screenshot-1.png",
-      "sizes": "1080x1920",
       "type": "image/png",
-      "form_factor": "wide",
-      "label": "Halaman Tambah Produk"
-    },
-    {
-      "src": "images/screenshot-2.png",
-      "sizes": "1080x1920",
-      "type": "image/png",
-      "form_factor": "wide",
-      "label": "Halaman Daftar Stok"
+      "purpose": "any maskable"
     }
   ]
 }
